@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext();
 
+
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) throw new Error('useAuth must be used within AuthProvider');
@@ -21,38 +22,61 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  const login = (email, password) => {
-    // Simulate API call
-    const fakeUser = { id: Date.now(), email, name: email.split('@')[0] };
-    setUser(fakeUser);
-    localStorage.setItem('user', JSON.stringify(fakeUser));
-    setIsAuthModalOpen(false);
-  };
+  const login = async (email, password) => {
+    try {
+        const response = await fetch('http://localhost:5000/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        const data = await response.json();
+    
+        if (!response.ok) {
+            console.error(data.error);
+            return;
+        }
+    
+        localStorage.setItem('token', data.token);
+        setUser(data.user);
+        setIsAuthModalOpen(false);
+        } catch (err) {
+            console.error('Login failed:', err);
+        }
+    };
 
-  const signup = (name, email, password) => {
-    const newUser = { id: Date.now(), name, email };
-    setUser(newUser);
-    localStorage.setItem('user', JSON.stringify(newUser));
-    setIsAuthModalOpen(false);
-  };
+  const signup = async (name, email, password) => {
+    try {
+        const response = await fetch('http://localhost:5000/api/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, password })
+        });
+        const data = await response.json();
+    
+        if (!response.ok) {
+            console.error(data.error);
+            return;
+        }
+    
+        await login(email, password);
+        } catch (err) {
+            console.error('Signup failed:', err);
+        }
+    };
 
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
   };
 
+  const [userTrips, setUserTrips] = useState([]);
+
   return (
     <AuthContext.Provider value={{
-      user,
-      login,
-      signup,
-      logout,
-      isAuthModalOpen,
-      setIsAuthModalOpen,
-      authMode,
-      setAuthMode
+        user, login, signup, logout, isAuthModalOpen, setIsAuthModalOpen,
+        authMode, setAuthMode, userTrips, setUserTrips, token: localStorage.getItem('token')
     }}>
-      {children}
+        {children}
     </AuthContext.Provider>
-  );
+    );
 };

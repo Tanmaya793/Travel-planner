@@ -1,6 +1,6 @@
 import React from 'react';
 import { AuthProvider } from './context/AuthContext';
-import HomePage from './components/HomePage';
+import HomePage from './components/Home';
 import AuthModal from './components/AuthModal';
 import './App.css';
 
