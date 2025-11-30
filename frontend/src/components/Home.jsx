@@ -12,7 +12,6 @@ const HomePage = () => {
 
   return (
     <div className="home-page">
-      <Navbar />
       
       <section className="hero">
         <div className="hero-content">

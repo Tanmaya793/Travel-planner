@@ -2,42 +2,46 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 
 const AuthModal = () => {
-  const { isAuthModalOpen, setIsAuthModalOpen, authMode, setAuthMode, login, signup, user } = useAuth();
+  const { 
+    isAuthModalOpen, 
+    setIsAuthModalOpen, 
+    authMode, 
+    setAuthMode, 
+    login, 
+    signup, 
+    user, 
+    loading,        // ← NEW
+    error           // ← NEW
+  } = useAuth();
   
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: ''
   });
-  const [error, setError] = useState('');
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    setError('');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    
     if (authMode === 'login') {
-      if (formData.email && formData.password) {
-        login(formData.email, formData.password);
-      }
+      await login(formData.email, formData.password);
     } else {
-      if (formData.name && formData.email && formData.password) {
-        signup(formData.name, formData.email, formData.password);
-      }
+      await signup(formData.name, formData.email, formData.password);
     }
   };
 
   const toggleAuthMode = () => {
     setAuthMode(authMode === 'login' ? 'signup' : 'login');
     setFormData({ name: '', email: '', password: '' });
-    setError('');
   };
 
   useEffect(() => {
     if (user) setIsAuthModalOpen(false);
-  }, [user]);
+  }, [user, setIsAuthModalOpen]);
 
   if (!isAuthModalOpen) return null;
 
@@ -47,6 +51,7 @@ const AuthModal = () => {
         <button 
           className="modal-close"
           onClick={() => setIsAuthModalOpen(false)}
+          disabled={loading}  // ← NEW: Disable during loading
         >
           ×
         </button>
@@ -67,6 +72,7 @@ const AuthModal = () => {
                 onChange={handleChange}
                 required
                 placeholder="Enter your full name"
+                disabled={loading}  // ← NEW
               />
             </div>
           )}
@@ -80,6 +86,7 @@ const AuthModal = () => {
               onChange={handleChange}
               required
               placeholder="your@email.com"
+              disabled={loading}  // ← NEW
             />
           </div>
           
@@ -93,13 +100,27 @@ const AuthModal = () => {
               required
               placeholder="••••••••"
               minLength="6"
+              disabled={loading}  // ← NEW
             />
           </div>
 
-          {error && <div className="error">{error}</div>}
+          {/* CONTEXT ERROR - Always shows */}
+          {error && (
+            <div className="error-message">
+              ❌ {error}
+            </div>
+          )}
 
-          <button type="submit" className="auth-btn">
-            {authMode === 'login' ? 'Sign In' : 'Create Account'}
+          <button 
+            type="submit" 
+            className="auth-btn"
+            disabled={loading}  // ← NEW: Disable button
+          >
+            {loading ? (
+              <span>⏳ {authMode === 'login' ? 'Signing In...' : 'Creating...'}</span>
+            ) : (
+              authMode === 'login' ? 'Sign In' : 'Create Account'
+            )}
           </button>
         </form>
 
@@ -110,7 +131,12 @@ const AuthModal = () => {
               : "Already have an account?"
             }
           </span>
-          <button type="button" onClick={toggleAuthMode} className="toggle-link">
+          <button 
+            type="button" 
+            onClick={toggleAuthMode} 
+            className="toggle-link"
+            disabled={loading}  // ← NEW
+          >
             {authMode === 'login' ? 'Sign up' : 'Sign in'}
           </button>
         </div>

@@ -1,12 +1,19 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
 
-const Navbar = () => {
+const Navbar = ({ currentPage, onNavigateToHome, onNavigateToExplore }) => {
   const { user, logout, setIsAuthModalOpen, setAuthMode } = useAuth();
 
   const handleAuthClick = () => {
     setAuthMode('login');
     setIsAuthModalOpen(true);
+  };
+
+  const handleNavClick = (e, handler) => {
+    e.preventDefault();
+    if (handler && typeof handler === 'function') {
+      handler();
+    }
   };
 
   return (
@@ -15,11 +22,27 @@ const Navbar = () => {
         <h2>🇮🇳 IndiaTrip</h2>
       </div>
       <ul className="nav-links">
-        <li><a href="#home">Home</a></li>
-        <li><a href="#explore">Explore</a></li>
+        <li>
+          <a 
+            href="#home" 
+            className={currentPage === 'home' ? 'active' : ''}
+            onClick={(e) => handleNavClick(e, onNavigateToHome)}
+          >
+            Home
+          </a>
+        </li>
+        <li>
+          <a 
+            href="#explore"
+            className={currentPage === 'explore' ? 'active' : ''}
+            onClick={(e) => handleNavClick(e, onNavigateToExplore)}
+          >
+            Explore
+          </a>
+        </li>
         {user ? (
           <>
-            <li><a href="#trips">My Trips</a></li>
+            <li><a href="#trips" className="disabled">My Trips</a></li>
             <li>
               <span className="user-welcome">Hi, {user.name}!</span>
             </li>
@@ -31,8 +54,12 @@ const Navbar = () => {
           </>
         ) : (
           <>
-            <li><a href="#trips">My Trips</a></li>
-            <li><button className="auth-btn-nav" onClick={handleAuthClick}>Login</button></li>
+            <li><a href="#trips" className="disabled">My Trips</a></li>
+            <li>
+              <button className="auth-btn-nav" onClick={handleAuthClick}>
+                Login
+              </button>
+            </li>
           </>
         )}
       </ul>
