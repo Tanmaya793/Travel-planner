@@ -43,6 +43,19 @@ const AuthModal = () => {
     if (user) setIsAuthModalOpen(false);
   }, [user, setIsAuthModalOpen]);
 
+  useEffect(() => {
+  if (isAuthModalOpen) {
+    setFormData({ name: '', email: '', password: '' });
+  }
+}, [isAuthModalOpen]);
+
+  useEffect(() => {
+  if (!user) {
+    setFormData({ name: '', email: '', password: '' });
+  }
+}, [user]);
+
+
   if (!isAuthModalOpen) return null;
 
   return (
@@ -61,7 +74,7 @@ const AuthModal = () => {
           <p>{authMode === 'login' ? 'Sign in to your account' : 'Join IndiaTrip today'}</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="auth-form">
+        <form onSubmit={handleSubmit} className="auth-form" autoComplete="off">
           {authMode === 'signup' && (
             <div className="input-group">
               <label>Name</label>
@@ -72,6 +85,7 @@ const AuthModal = () => {
                 onChange={handleChange}
                 required
                 placeholder="Enter your full name"
+                autoComplete="off"
                 disabled={loading}  // ← NEW
               />
             </div>
@@ -86,6 +100,7 @@ const AuthModal = () => {
               onChange={handleChange}
               required
               placeholder="your@email.com"
+              autoComplete="off"
               disabled={loading}  // ← NEW
             />
           </div>
@@ -100,6 +115,7 @@ const AuthModal = () => {
               required
               placeholder="••••••••"
               minLength="6"
+              autoComplete="off"
               disabled={loading}  // ← NEW
             />
           </div>

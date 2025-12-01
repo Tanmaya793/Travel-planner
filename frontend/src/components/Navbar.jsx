@@ -1,7 +1,8 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
+import wwLogo from '../WW.png';
 
-const Navbar = ({ currentPage, onNavigateToHome, onNavigateToExplore }) => {
+const Navbar = ({ currentPage, onNavigateToHome, onNavigateToExplore, onNavigateToTrips }) => {
   const { user, logout, setIsAuthModalOpen, setAuthMode } = useAuth();
 
   const handleAuthClick = () => {
@@ -16,10 +17,20 @@ const Navbar = ({ currentPage, onNavigateToHome, onNavigateToExplore }) => {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      logout();
+      onNavigateToHome && onNavigateToHome();
+    } catch (e) {
+      console.error('Logout failed', e);
+    }
+  };
+
   return (
     <nav className="navbar">
       <div className="nav-brand">
-        <h2>🇮🇳 IndiaTrip</h2>
+        <img src={wwLogo} alt="Weekend-Wonders" className="nav-logo-img" />
+        <span className="nav-logo-text">Weekend‑Wonders</span>
       </div>
       <ul className="nav-links">
         <li>
@@ -42,19 +53,19 @@ const Navbar = ({ currentPage, onNavigateToHome, onNavigateToExplore }) => {
         </li>
         {user ? (
           <>
-            <li><a href="#trips" className="disabled">My Trips</a></li>
+            <li><a href="#trips" className={currentPage === 'trips' ? 'active' : ''}
+              onClick={(e) => handleNavClick(e, onNavigateToTrips)} >My Trips</a></li>
             <li>
               <span className="user-welcome">Hi, {user.name}!</span>
             </li>
             <li>
-              <button className="logout-btn" onClick={logout}>
+              <button className="logout-btn" onClick={handleLogout}>
                 Logout
               </button>
             </li>
           </>
         ) : (
           <>
-            <li><a href="#trips" className="disabled">My Trips</a></li>
             <li>
               <button className="auth-btn-nav" onClick={handleAuthClick}>
                 Login

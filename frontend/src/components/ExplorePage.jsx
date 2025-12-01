@@ -71,11 +71,23 @@ const ExplorePage = () => {
     return <div className="loading">Loading spots from database...</div>;
   }
 
+  const totalSpots = spots.length;           // current filtered list
+  const totalStates = states.length;         // total states & UTs from backend
+
+  let headerText;
+
+  if (selectedState === 'all') {
+    headerText = `${totalSpots} tourist spots across ${totalStates} states & UTs`;
+  } else {
+    headerText = `Amazing ${totalSpots} spot${totalSpots !== 1 ? 's' : ''} from ${selectedState} for you!`;
+  }
+
+
   return (
     <div className="explore-page">
       <div className="explore-header">
         <h1>Explore India</h1>
-        <p>{spots.length} tourist spots across {states.length} states</p>
+        <p>{headerText}</p>
       </div>
 
       <SpotFilter 
